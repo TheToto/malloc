@@ -40,19 +40,21 @@ struct chunk *allocate_page(struct chunk *prev_page)
 
 static struct chunk* get_chunk(void *ptr){
     char *tmp = ptr;
-    return tmp - sizeof(struct chunk);
+    void *res = tmp - sizeof(struct chunk);
+    return res;
 }
 
-static void *get_ptr(struct chunk *chunk){
-    char *tmp = chunk;
-    return tmp + sizeof(struct chunk);
+static char *get_ptr(struct chunk *chunk){
+    void *tmp = chunk;
+    char *res = tmp;
+    return res + sizeof(struct chunk);
 }
 
 
 struct chunk *ask_chunk(size_t size)
 {
     struct chunk *i = my_heap;
-    if (!my_heap)
+    if (!i)
         return NULL;
     while (i && !i->free && i->size < size)
         i = i->next;
@@ -63,32 +65,35 @@ static void split_chunk(struct chunk *chunk, size_t size)
 {
     if (chunk->size >= size + sizeof(struct chunk) + sizeof(size_t))
     {
-        
+        void *tmp = get_ptr(chunk) + size;
+        struct chunk *new = tmp;
+        new->size = chunk->size - size - sizeof(struct chunk) ;
+        new->next = chunk->next;
+        new->free = 1;
+        chunk->size = size;
+        chunk->next = new;
     }
-    struct chunk *new;
-    new = (struct chunk*)(b->data + size);
-    new->size = b->size - s - sizeof(struct chunk) ;
-    new->next = b->next;
-    new->free = 1;
-    chunk->size = size;
-    chunk->next = new;
 }
 
 
     __attribute__((visibility("default")))
 void *malloc(size_t size)
 {
+    size = word_align(size);
     struct chunk *ask = ask_chunk(size);
-    if (ask->free && ask->size >= size)
+    if (ask && ask->free && ask->size >= size)
     {
-        //split
+        split_chunk(ask, size);
     }
     else
     {
         ask = allocate_page(ask);
-        //split
+        if (ask == NULL)
+            return NULL;
+        split_chunk(ask, size);
     }
-    return NULL;
+    ask->free = 0;
+    return ask;
 }
 
     __attribute__((visibility("default")))
