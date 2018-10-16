@@ -99,6 +99,9 @@ void *malloc(size_t size)
     __attribute__((visibility("default")))
 void free(void *ptr)
 {
+    struct chunk *chunk = get_chunk(ptr);
+    chunk->free = 1;
+    //merge
 }
 
     __attribute__((visibility("default")))
