@@ -7,15 +7,17 @@
 #include <pthread.h>
 #include <stdint.h>
 
-#define SIZE_PAGE sysconf(_SC_PAGESIZE)
+#include <stdio.h>
 
-struct chunck *my_heap = NULL;
+#define SIZE_PAGE sysconf(_SC_PAGESIZE)
 
 struct chunk {
     size_t size;
     int free;
     struct chunk *next; // prev pour merge ?
 };
+
+void *my_heap = NULL;
 
 size_t word_align(size_t n)
 {
@@ -26,25 +28,30 @@ struct chunk *allocate_page(struct chunk *prev_page)
 {
     struct chunk *new_page = mmap(0, SIZE_PAGE,
             PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    if (my_heap != MAP_FAILED)
+
+    if (new_page != MAP_FAILED)
     {
         new_page->next = NULL;
         new_page->free = 1;
         new_page->size = SIZE_PAGE - sizeof(struct chunk);
         if (prev_page)
             prev_page->next = new_page;
+        if (!prev_page && !my_heap)
+            my_heap = new_page;
         return new_page;
     }
     return NULL;
 }
 
-static struct chunk* get_chunk(void *ptr){
+static struct chunk* get_chunk(void *ptr)
+{
     char *tmp = ptr;
     void *res = tmp - sizeof(struct chunk);
     return res;
 }
 
-static char *get_ptr(struct chunk *chunk){
+static char *get_ptr(struct chunk *chunk)
+{
     void *tmp = chunk;
     char *res = tmp;
     return res + sizeof(struct chunk);
@@ -56,8 +63,10 @@ struct chunk *ask_chunk(size_t size)
     struct chunk *i = my_heap;
     if (!i)
         return NULL;
-    while (i && !i->free && i->size < size)
+    while (i->next && !i->next->free && i->next->size < size)
         i = i->next;
+    if (i && i->next->free && i->next->size >= size)
+        return i->next;
     return i;
 }
 
@@ -79,6 +88,8 @@ static void split_chunk(struct chunk *chunk, size_t size)
     __attribute__((visibility("default")))
 void *malloc(size_t size)
 {
+    if (size <= 0)
+        return NULL;
     size = word_align(size);
     struct chunk *ask = ask_chunk(size);
     if (ask && ask->free && ask->size >= size)
@@ -93,12 +104,15 @@ void *malloc(size_t size)
         split_chunk(ask, size);
     }
     ask->free = 0;
-    return ask;
+
+    return get_ptr(ask);
 }
 
     __attribute__((visibility("default")))
 void free(void *ptr)
 {
+    if (!ptr)
+        return;
     struct chunk *chunk = get_chunk(ptr);
     chunk->free = 1;
     //merge
@@ -107,11 +121,28 @@ void free(void *ptr)
     __attribute__((visibility("default")))
 void *realloc(void *ptr, size_t size)
 {
-    return NULL;
+    struct chunk *chunk = get_chunk(ptr);
+    if (chunk->next && chunk->next->free
+            && chunk->size + chunk->next->size)
+    {
+
+    }
+    else
+    {
+        //malloc+copy+free
+    }
 }
 
     __attribute__((visibility("default")))
 void *calloc(size_t nmemb, size_t size)
 {
-    return NULL;
+    char *ptr = malloc(nmemb * size);
+    if (!ptr)
+        return NULL;
+    for (size_t i = 0; i < nmemb * size; i++)
+    {
+        *(ptr + i) = 0;
+    }
+    return ptr;
 }
+

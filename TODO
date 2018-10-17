@@ -1,7 +1,7 @@
-- implement a simple first fit malloc
-- implement calloc
-- implement free
-- implement realloc
-- improve malloc :
-  - thread safe
-  - free list
+OK - implement a simple first fit malloc
+OK - implement calloc
+OK - implement free
+   - implement realloc
+   - improve malloc :
+     - thread safe
+     - free list
