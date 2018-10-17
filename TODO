@@ -13,5 +13,5 @@ OK - implement free
    - improve free :
       - merge prev and next block
 OK - implement realloc
-   - improve realloc :
-   STARTED   - merging with next block BUT verify if it's not a other page
+OK - improve realloc :
+      - merging with next block BUT verify if it's not a other page

@@ -156,14 +156,14 @@ void *realloc(void *ptr, size_t size)
     }
     size = word_align(size);
     struct chunk *chunk = get_chunk(ptr);
-    if (0 && chunk->next && (chunk->next->free & FREE)
-        && !(chunk->next->free & FIRST_CHUNK)
+    if (chunk->next != NULL && (chunk->next->free & FREE)
+        && !(chunk->next->free & FIRST_CHUNK) && size < SIZE_PAGE - 1024
         && (chunk->size + chunk->next->size + sizeof(struct chunk) >= size))
     {
         chunk->size += chunk->next->size + sizeof(struct chunk);
         chunk->next = chunk->next->next;
         split_chunk(chunk, size);
-        return chunk;
+        return get_ptr(chunk);
     }
     else
     {
