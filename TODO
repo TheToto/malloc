@@ -14,4 +14,4 @@ OK - implement free
       - merge prev and next block
 OK - implement realloc
    - improve realloc :
-      - merging with next block BUT verify if it's not a other page
+   STARTED   - merging with next block BUT verify if it's not a other page

@@ -11,7 +11,15 @@
 
 #define SIZE_PAGE sysconf(_SC_PAGESIZE)
 
-struct chunk {
+enum free_state
+{
+    FREE = 1,
+    FIRST_CHUNK = 2,
+    ALONE_CHUNK = 4
+};
+
+struct chunk
+{
     size_t size;
     char free;
     struct chunk *next; // prev pour merge ?
@@ -32,7 +40,7 @@ struct chunk *allocate_page(struct chunk *prev_page)
     if (new_page != MAP_FAILED)
     {
         new_page->next = NULL;
-        new_page->free = 1;
+        new_page->free = FREE | FIRST_CHUNK;
         new_page->size = SIZE_PAGE - sizeof(struct chunk);
         if (prev_page)
             prev_page->next = new_page;
@@ -65,7 +73,7 @@ struct chunk *ask_chunk(size_t size)
         return NULL;
     while (i->next)
     {
-        if (i->next->free && i->next->size >= size)
+        if ((i->next->free & FREE) && i->next->size >= size)
             return i->next;
         i = i->next;
     }
@@ -80,7 +88,7 @@ static void split_chunk(struct chunk *chunk, size_t size)
         struct chunk *new = tmp;
         new->size = chunk->size - size - sizeof(struct chunk) ;
         new->next = chunk->next;
-        new->free = 1;
+        new->free = FREE;
         chunk->size = size;
         chunk->next = new;
     }
@@ -92,7 +100,7 @@ static void *allocate_big(size_t size)
             PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     chunk->next = NULL;
     chunk->size = size;
-    chunk->free = 2;
+    chunk->free = ALONE_CHUNK;
     return get_ptr(chunk);
 }
 
@@ -105,7 +113,7 @@ void *malloc(size_t size)
     if (size >= SIZE_PAGE - 1024)
         return allocate_big(size);
     struct chunk *ask = ask_chunk(size);
-    if (ask && ask->free && ask->size >= size)
+    if (ask && (ask->free & FREE) && ask->size >= size)
     {
         split_chunk(ask, size);
     }
@@ -116,7 +124,7 @@ void *malloc(size_t size)
             return NULL;
         split_chunk(ask, size);
     }
-    ask->free = 0;
+    ask->free &= ~FREE;
 
     return get_ptr(ask);
 }
@@ -127,7 +135,12 @@ void free(void *ptr)
     if (!ptr)
         return;
     struct chunk *chunk = get_chunk(ptr);
-    chunk->free = 1;
+    if (chunk->free & ALONE_CHUNK)
+    {
+        munmap(chunk, chunk->size + sizeof(struct chunk));
+        return;
+    }
+    chunk->free |= FREE;
     // merge/munmap
 }
 
@@ -143,7 +156,8 @@ void *realloc(void *ptr, size_t size)
     }
     size = word_align(size);
     struct chunk *chunk = get_chunk(ptr);
-    if (0 && chunk->next && chunk->next->free
+    if (0 && chunk->next && (chunk->next->free & FREE)
+        && !(chunk->next->free & FIRST_CHUNK)
         && (chunk->size + chunk->next->size + sizeof(struct chunk) >= size))
     {
         chunk->size += chunk->next->size + sizeof(struct chunk);
