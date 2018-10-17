@@ -3,7 +3,7 @@ MALLOC
 OK - implement a simple first fit malloc
 OK - handle big allocation (more than 1 page)
    - improve malloc :
-URGENT      - thread safe
+OK    - thread safe
       - free list
 
 MISC
