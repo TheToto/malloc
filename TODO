@@ -1,7 +1,17 @@
+MALLOC
+------
 OK - implement a simple first fit malloc
+OK - handle big allocation (more than 1 page)
+   - improve malloc :
+      - thread safe
+      - free list
+
+MISC
+----
 OK - implement calloc
 OK - implement free
+   - improve free :
+      - merge prev and next block
 OK - implement realloc
-   - improve malloc :
-     - thread safe
-     - free list
+   - improve realloc :
+      - merging with next block BUT verify if it's not a other page

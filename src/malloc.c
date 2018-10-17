@@ -13,7 +13,7 @@
 
 struct chunk {
     size_t size;
-    int free;
+    char free;
     struct chunk *next; // prev pour merge ?
 };
 
@@ -63,10 +63,12 @@ struct chunk *ask_chunk(size_t size)
     struct chunk *i = my_heap;
     if (!i)
         return NULL;
-    while (i->next && !i->next->free && i->next->size < size)
+    while (i->next)
+    {
+        if (i->next->free && i->next->size >= size)
+            return i->next;
         i = i->next;
-    if (i && i->next->free && i->next->size >= size)
-        return i->next;
+    }
     return i;
 }
 
@@ -84,6 +86,15 @@ static void split_chunk(struct chunk *chunk, size_t size)
     }
 }
 
+static void *allocate_big(size_t size)
+{
+    struct chunk *chunk =mmap(0, size + sizeof(struct chunk),
+            PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    chunk->next = NULL;
+    chunk->size = size;
+    chunk->free = 2;
+    return get_ptr(chunk);
+}
 
     __attribute__((visibility("default")))
 void *malloc(size_t size)
@@ -91,6 +102,8 @@ void *malloc(size_t size)
     if (size <= 0)
         return NULL;
     size = word_align(size);
+    if (size >= SIZE_PAGE - 1024)
+        return allocate_big(size);
     struct chunk *ask = ask_chunk(size);
     if (ask && ask->free && ask->size >= size)
     {
@@ -115,7 +128,7 @@ void free(void *ptr)
         return;
     struct chunk *chunk = get_chunk(ptr);
     chunk->free = 1;
-    //merge
+    // merge/munmap
 }
 
     __attribute__((visibility("default")))
@@ -130,7 +143,7 @@ void *realloc(void *ptr, size_t size)
     }
     size = word_align(size);
     struct chunk *chunk = get_chunk(ptr);
-    if (chunk->next && chunk->next->free
+    if (0 && chunk->next && chunk->next->free
         && (chunk->size + chunk->next->size + sizeof(struct chunk) >= size))
     {
         chunk->size += chunk->next->size + sizeof(struct chunk);
