@@ -3,7 +3,7 @@ MALLOC
 OK - implement a simple first fit malloc
 OK - handle big allocation (more than 1 page)
    - improve malloc :
-      - thread safe
+URGENT      - thread safe
       - free list
 
 MISC
@@ -11,7 +11,7 @@ MISC
 OK - implement calloc
 OK - implement free
    - improve free :
-      - merge prev and next block
+OK    - merge prev and next block -> cause errors ?
 OK - implement realloc
-OK - improve realloc :
-      - merging with next block BUT verify if it's not a other page
+   - improve realloc :
+OK    - merging with next block BUT verify if it's not a other page
