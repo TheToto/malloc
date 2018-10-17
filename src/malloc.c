@@ -121,16 +121,37 @@ void free(void *ptr)
     __attribute__((visibility("default")))
 void *realloc(void *ptr, size_t size)
 {
+    if (!ptr)
+        return malloc(size);
+    if (size == 0)
+    {
+        free(ptr);
+        return NULL;
+    }
+    size = word_align(size);
     struct chunk *chunk = get_chunk(ptr);
     if (chunk->next && chunk->next->free
-            && chunk->size + chunk->next->size)
+        && (chunk->size + chunk->next->size + sizeof(struct chunk) >= size))
     {
-
+        chunk->size += chunk->next->size + sizeof(struct chunk);
+        chunk->next = chunk->next->next;
+        split_chunk(chunk, size);
+        return chunk;
     }
     else
     {
-        //malloc+copy+free
+        char *new = malloc(size);
+        if (!new)
+            return NULL;
+        char *old = ptr;
+        for (size_t i = 0; i < chunk->size && i < size; i++)
+        {
+            *(new + i) = *(old + i);
+        }
+        free(ptr);
+        return new;
     }
+    return NULL;
 }
 
     __attribute__((visibility("default")))
