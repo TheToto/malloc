@@ -15,4 +15,4 @@ OK    - merge prev and next block -> cause errors ?
 OK - implement realloc
    - improve realloc :
 OK    - merging with next block BUT verify if it's not a other page
-   - fix realloc prev error
+OK - fix realloc prev error
