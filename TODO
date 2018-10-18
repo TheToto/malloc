@@ -19,7 +19,8 @@ OK - fix realloc prev error
 
 TEST-SUITE
 ----------
-   - Menu to choose what to do
-   - Test malloc with own c compiled binary
-   - Ask user to launch a specific binary
-   - show speed
+OK - Menu to choose what to do
+OK - Test malloc with own c compiled binary
+OK - Ask user to launch a specific binary
+OK - show speed
+   - More tests .c
