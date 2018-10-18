@@ -16,3 +16,10 @@ OK - implement realloc
 -- - improve realloc :
 OK    - merging with next block BUT verify if it's not a other page
 OK - fix realloc prev error
+
+TEST-SUITE
+----------
+   - Menu to choose what to do
+   - Test malloc with own c compiled binary
+   - Ask user to launch a specific binary
+   - show speed

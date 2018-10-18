@@ -17,7 +17,7 @@ static void *realloc_merge(struct chunk *chunk, size_t size)
     return get_ptr(chunk);
 }
 
-    __attribute__((visibility("default")))
+__attribute__((visibility("default")))
 void *realloc(void *ptr, size_t size)
 {
     if (!ptr)

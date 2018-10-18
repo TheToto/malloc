@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "malloc.h"
 
-    __attribute__((visibility("default")))
+__attribute__((visibility("default")))
 void *calloc(size_t nmemb, size_t size)
 {
     char *ptr = malloc(nmemb * size);

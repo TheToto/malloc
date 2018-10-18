@@ -36,7 +36,7 @@ static struct chunk *merge_chunk(struct chunk *chunk)
     return chunk;
 }
 
-    __attribute__((visibility("default")))
+__attribute__((visibility("default")))
 void free(void *ptr)
 {
     if (!ptr)

@@ -72,7 +72,7 @@ static void *allocate_big(size_t size)
     return get_ptr(chunk);
 }
 
-    __attribute__((visibility("default")))
+__attribute__((visibility("default")))
 void *malloc(size_t size)
 {
     if (size <= 0)
