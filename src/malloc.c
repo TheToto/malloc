@@ -13,7 +13,7 @@ struct meta meta =
     PTHREAD_MUTEX_INITIALIZER
 };
 
-struct chunk *allocate_page(void)
+static struct chunk *allocate_page(void)
 {
     struct chunk *new_page = mmap(NULL, SIZE_PAGE,
         PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -33,7 +33,7 @@ struct chunk *allocate_page(void)
     return NULL;
 }
 
-struct chunk *ask_chunk(size_t size)
+static struct chunk *ask_chunk(size_t size)
 {
     struct chunk *i = meta.first_free;
     if (!i)
