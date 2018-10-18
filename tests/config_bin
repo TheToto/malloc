@@ -1,0 +1,5 @@
+ls
+ls -la
+tree
+tree /bin
+find
