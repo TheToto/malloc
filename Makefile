@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -pedantic -std=c99 -fPIC -fvisibility=hidden
+CFLAGS = -Wall -Wextra -pedantic -std=c99 -fPIC -fvisibility=hidden -g
 LDFLAGS = -shared
 TARGET_LIB = libmalloc.so
 VPATH = src

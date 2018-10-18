@@ -27,7 +27,7 @@ struct chunk
 };
 
 void *my_heap = NULL;
-pthread_mutex_t lock;
+//pthread_mutex_t lock;
 
 size_t word_align(size_t n)
 {
@@ -106,32 +106,33 @@ static void *allocate_big(size_t size)
     chunk->prev = NULL;
     chunk->size = size;
     chunk->free = ALONE_CHUNK;
-    pthread_mutex_unlock(&lock);
+    //pthread_mutex_unlock(&lock);
     return get_ptr(chunk);
 }
 
-/*void print_all(void)
+    __attribute__((visibility("default")))
+void print_all(void)
 {
     struct chunk *chunk = my_heap;
     printf("start %ld\n", sizeof(struct chunk));
     while (chunk)
     {
-        printf("chunk %p : %d : %ld\n", get_ptr(chunk), chunk->free, chunk->size);
-        if (chunk->free & FREE)
-            printf("yes free\n");
+        printf("chunk %p : %d : %ld\n", chunk, chunk->free, chunk->size);
+        if (chunk->next && chunk->next->prev != chunk)
+            printf("PREV ERROR %p/%p\n", chunk->next->prev, chunk);
         chunk = chunk->next;
     }
     printf("end\n");
-}*/
+}
 
     __attribute__((visibility("default")))
 void *malloc(size_t size)
 {
     if (size <= 0)
         return NULL;
-    if (!my_heap && pthread_mutex_init(&lock, NULL) != 0)
-        return NULL;
-    pthread_mutex_lock(&lock);
+    //if (!my_heap && pthread_mutex_init(&lock, NULL) != 0)
+    //    return NULL;
+    //pthread_mutex_lock(&lock);
     size = word_align(size);
     size_t max_size = SIZE_PAGE - 1024;
     if (size >= max_size)
@@ -146,20 +147,20 @@ void *malloc(size_t size)
         ask = allocate_page(ask);
         if (ask == NULL)
         {
-            pthread_mutex_unlock(&lock);
+            //pthread_mutex_unlock(&lock);
             return NULL;
         }
         split_chunk(ask, size);
     }
     ask->free = ask->free & ~FREE;
-    pthread_mutex_unlock(&lock);
+    //pthread_mutex_unlock(&lock);
     return get_ptr(ask);
 }
 
 static struct chunk *merge_chunk(struct chunk *chunk)
 {
     if (chunk->prev && (chunk->prev->free & FREE)
-        && !(chunk->free & FIRST_CHUNK))
+        && !(chunk->free & FIRST_CHUNK)) // !!!!
     {
         chunk = chunk->prev;
         chunk->size = chunk->size + chunk->next->size + sizeof(struct chunk);
@@ -183,12 +184,12 @@ void free(void *ptr)
 {
     if (!ptr)
         return;
-    pthread_mutex_lock(&lock);
+    //pthread_mutex_lock(&lock);
     struct chunk *chunk = get_chunk(ptr);
     if (chunk->free & ALONE_CHUNK)
     {
         munmap(chunk, chunk->size + sizeof(struct chunk));
-        pthread_mutex_unlock(&lock);
+        //pthread_mutex_unlock(&lock);
         return;
     }
     chunk->free |= FREE;
@@ -206,9 +207,9 @@ void free(void *ptr)
             chunk->next->prev = chunk->prev;
         munmap(chunk, SIZE_PAGE);
     }
-    if (!my_heap)
-        pthread_mutex_destroy(&lock);
-    pthread_mutex_unlock(&lock);
+    //pthread_mutex_unlock(&lock);
+    //if (!my_heap)
+    //    pthread_mutex_destroy(&lock);
 }
 
     __attribute__((visibility("default")))
@@ -221,7 +222,7 @@ void *realloc(void *ptr, size_t size)
         free(ptr);
         return NULL;
     }
-    pthread_mutex_lock(&lock);
+    //pthread_mutex_lock(&lock);
     size = word_align(size);
     size_t max_size = SIZE_PAGE - 1024;
     struct chunk *chunk = get_chunk(ptr);
@@ -234,12 +235,12 @@ void *realloc(void *ptr, size_t size)
         if (chunk->next)
             chunk->next->prev = chunk;
         split_chunk(chunk, size);
-        pthread_mutex_unlock(&lock);
+        //pthread_mutex_unlock(&lock);
         return get_ptr(chunk);
     }
     else
     {
-        pthread_mutex_unlock(&lock);
+        //pthread_mutex_unlock(&lock);
         char *new = malloc(size);
         if (!new)
             return NULL;
