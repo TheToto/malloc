@@ -4,7 +4,7 @@ OK - implement a simple first fit malloc
 OK - handle big allocation (more than 1 page)
 -- - improve malloc :
 OK    - thread safe
-      - free list
+OK    - free list
 
 MISC
 ----
