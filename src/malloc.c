@@ -31,7 +31,7 @@ pthread_mutex_t lock;
 
 size_t word_align(size_t n)
 {
-    return (sizeof(size_t) + n - 1) & -(sizeof(size_t)); 
+    return (sizeof(size_t) + n - 1) & -(sizeof(size_t));
 }
 
 struct chunk *allocate_page(void)
@@ -92,10 +92,10 @@ static void split_chunk(struct chunk *chunk, size_t size)
         new->next = chunk->next;
         new->prev = chunk;
         new->free = FREE;
-        chunk->size = size;
-        chunk->next = new;
         if (new->next)
             new->next->prev = new;
+        chunk->size = size;
+        chunk->next = new;
     }
 }
 
