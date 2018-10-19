@@ -1,30 +1,40 @@
 #!/bin/bash
 
 show_res() {
-    echo "launch $1 binary whith LD_PRELOAD"
+    echo -e "\033[1;4mLaunch $1 binary whith LD_PRELOAD\033[0m"
     echo
     time LD_PRELOAD=./libmalloc.save.so $1
     ret=$?
-    seg=""
-    [ "$ret" -eq 139 ] && seg="SEGFAULT !"
-    echo "Exit status : $ret $seg"
+    seg="\033[0m"
+    [ "$ret" -eq 139 ] && seg="\033[31;1;4;5;7mSEGFAULT !\033[0m"
+    if [ $ret == 0 ]; then
+        echo -e "\033[32mExit status : $ret $seg"
+    else
+        echo -e "\033[31mExit status : $ret $seg"
+    fi
     if [ "0" == "$2" ]; then
         echo
-        echo "Real malloc result :"
+        echo -e "\033[1;4mReal malloc result :\033[0m"
         time $1 > tmp2
-        echo "Exit status : $?"
+        seg="\033[0m"
+        [ "$ret" -eq 139 ] && seg="\033[31;1;4;5;7mSEGFAULT !\033[0m"
+        if [ $ret == 0 ]; then
+            echo -e "\033[32mExit status : $ret $seg"
+        else
+            echo -e "\033[31mExit status : $ret $seg"
+        fi
         rm tmp2
     fi
     [ -f "my_test" ] && rm my_test
     echo
-    echo "Press Enter to continue..."
+    echo -e "\033[4mPress Enter to continue...\033[0m"
     read
 }
 
 show_test() {
     clear
     echo
-    echo "Choose a test: (put .c files in tests/src folder)"
+    echo -e "\033[1;4mChoose a test: (put .c files in tests/src folder or type a binary)\033[0m"
     i=1
     for file in $(echo tests/src/*.c)
     do
@@ -53,7 +63,7 @@ show_test() {
 show_binary() {
     clear
     echo
-    echo "Choose a binary: (you can edit tests/config_bin file)"
+    echo -e "\033[1;4mChoose a binary: (you can edit tests/config_bin file or type a binary)\033[0m"
     i=1
     while read file
     do
@@ -86,7 +96,7 @@ show_binary() {
 show_gui() {
     clear
     echo
-    echo "Choose a binary: (you can edit tests/config_bin file)"
+    echo -e "\033[1;4mChoose a binary: (you can edit tests/config_bin file)\033[0m"
     i=1
     for file in $(cat tests/config_gui)
     do
@@ -117,7 +127,7 @@ show_gui() {
 show_menu() {
     clear
     echo
-    echo "Choose an options:"
+    echo -e "\033[1;4mChoose an options:\033[0m"
     echo "1 - Launch one of my tests"
     echo "2 - Launch a console binary"
     echo "3 - Launch a GUI binary"
