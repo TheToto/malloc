@@ -4,18 +4,16 @@
 int main(void)
 {
     setbuf(stdout, NULL);
-    printf("malloc 6 *int");
     int **test = malloc(sizeof(int*) * 6);
     for (int i = 0; i < 6; i++)
     {
-        printf("malloc 1040 %p\n", test[i]);
+        printf("malloc 1040\n");
         test[i] = malloc(1040);
-    }
-    printf("\n");
-    for (int i = 0; i < 6; i++)
-    {
-        printf("realloc %p 2040\n", test[i]);
-        test[i] = realloc(test[i], 2040);
+        if (!test[i])
+        {
+            printf("MALLOC ERROR");
+            return 1;
+        }
     }
     for (int i = 0; i < 6; i++)
     {
@@ -23,5 +21,6 @@ int main(void)
         free(test[i]);
     }
     free(test);
-    printf("Everything is free\n");
+    printf("\nResume : 6 malloc of 1024 + free all\n");
+    return 0;
 }

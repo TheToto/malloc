@@ -26,7 +26,7 @@ show_test() {
     echo
     echo "Choose a test: (put .c files in tests/src folder)"
     i=1
-    for file in $(echo tests/src/test*.c)
+    for file in $(echo tests/src/*.c)
     do
         echo "$i - $file"
         ((i++))
@@ -35,7 +35,7 @@ show_test() {
     read res
     i=1
     [ -z "$res" ] && return
-    for file in $(echo tests/src/test*.c)
+    for file in $(echo tests/src/*.c)
     do
         if [ "$res" -eq "$i" ]; then
             clear
