@@ -13,12 +13,12 @@ show_res() {
         echo "Real malloc result :"
         time $1 > tmp2
         echo "Exit status : $?"
+        rm tmp2
     fi
     [ -f "my_test" ] && rm my_test
     echo
     echo "Press Enter to continue..."
     read
-    show_menu
 }
 
 show_test() {
@@ -39,11 +39,12 @@ show_test() {
     do
         if [ "$res" -eq "$i" ]; then
             clear
-            echo "Compiling..."
+            echo "Compiling $file..."
             gcc "$file" -o my_test
             echo "Compiled !"
             echo
             show_res "./my_test" "0"
+            show_test
         fi
         ((i++))
     done
@@ -79,6 +80,7 @@ show_binary() {
     clear
     echo
     show_res "$exe" 0
+    show_binary
 }
 
 show_gui() {
@@ -122,7 +124,7 @@ show_menu() {
     echo "4 - Quit"
     echo
     read res
-    [ -z "$res" ] && exit 1
+    [ -z "$res" ] && res=4
     case "$res" in
         1)
             show_test
@@ -145,6 +147,5 @@ show_menu() {
             ;;
     esac
 }
-make
 cp libmalloc.so libmalloc.save.so
 show_menu

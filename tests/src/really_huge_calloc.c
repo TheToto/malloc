@@ -4,11 +4,11 @@
 int main(void)
 {
     setbuf(stdout, NULL);
-    int **test = calloc(sizeof(int*) * 60000);
+    int **test = calloc(sizeof(int*), 60000);
     for (int i = 0; i < 60000; i++)
     {
         printf("calloc 100000\n");
-        test[i] = calloc(100000);
+        test[i] = calloc(1, 100000);
         if (!test[i])
         {
             printf("CALLOC ERROR");
