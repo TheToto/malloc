@@ -1,9 +1,9 @@
 #!/bin/bash
 
 show_res() {
-    echo "Launch $1 binary whith LD_PRELOAD"
+    echo "launch $1 binary whith LD_PRELOAD"
     echo
-    time LD_PRELOAD=./libmalloc.so $1
+    time LD_PRELOAD=./libmalloc.save.so $1
     ret=$?
     seg=""
     [ "$ret" -eq 139 ] && seg="SEGFAULT !"
@@ -11,7 +11,7 @@ show_res() {
     if [ "0" == "$2" ]; then
         echo
         echo "Real malloc result :"
-        time $1 > /dev/null
+        time $1 > tmp2
         echo "Exit status : $?"
     fi
     [ -f "my_test" ] && rm my_test
@@ -137,6 +137,7 @@ show_menu() {
             show_menu
             ;;
         4)
+            rm libmalloc.save.so
             exit 0
             ;;
         *)
@@ -144,5 +145,6 @@ show_menu() {
             ;;
     esac
 }
-
+make
+cp libmalloc.so libmalloc.save.so
 show_menu

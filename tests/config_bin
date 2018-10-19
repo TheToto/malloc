@@ -1,5 +1,10 @@
 ls
 ls -la
+ls ../ -laR
 tree
 tree /bin
 find
+find /bin -exec echo -- {} -- \;
+pwd
+make clean
+make
