@@ -1,0 +1,36 @@
+NAME
+        libmalloc.so : allocate and free dynamic memory
+
+SYNOPSIS
+        void *malloc(size_t size);
+        void free(void *ptr);
+        void *calloc(size_t nmemb, size_t size);
+        void *realloc(void *ptr, size_t size);
+
+DESCRIPTION
+        malloc() allocates size bytes and return a pointer to the allocated
+        memory.
+
+        free() frees the memory space pointed by ptr. The ptr must be a ptr
+        returned by malloc, realloc or calloc.
+
+        calloc() allocates memory from an array of nmenb elements of size size
+        and return a pointer to the allocated memory;
+
+        realloc() change the size of the memory block pointed by ptr to size
+        bytes. The content will be unchanged.
+
+COMPILATION
+        make library.so
+            make the shared library libmalloc.so
+
+        make clean
+            remove all files created by make
+
+        make check
+            launch the test suite
+
+HOW TO USE
+        42sh$ make
+        42sh$ LD_PRELOAD=./libmalloc.so <binary>
+        - Segmentation fault (core dump)
