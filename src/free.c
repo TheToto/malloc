@@ -11,7 +11,8 @@ static struct chunk *merge_chunk(struct chunk *chunk)
     if (chunk->prev && (chunk->prev->free & FREE)
         && !(chunk->free & FIRST_CHUNK)) // !!!!
     {
-        chunk->prev->size = chunk->size + chunk->prev->size + sizeof(struct chunk);
+        chunk->prev->size = chunk->size + chunk->prev->size
+            + sizeof(struct chunk);
         chunk->prev->next = chunk->next;
         if (chunk->next)
             chunk->next->prev = chunk->prev;
